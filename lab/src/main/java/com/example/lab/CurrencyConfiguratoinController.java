@@ -1,0 +1,21 @@
+package com.example.lab;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class CurrencyConfiguratoinController {
+
+	@Autowired
+	private CurrencyServiceConfiguration configuration;
+	
+	@RequestMapping("/currency-congiuration")
+	public CurrencyServiceConfiguration retrieveAllCourses(){
+		return configuration;
+				
+	}
+
+	
+	
+}
