@@ -1,12 +1,15 @@
 package com.example.restfulWebService.restfulWebServices.users;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 
@@ -19,6 +22,10 @@ public class Users {
 	@GeneratedValue
 	private int id;
 	
+	@OneToMany(mappedBy="user")
+	@JsonIgnore
+	private  List<Post> posts; //one user can post many things so this field is 1 to many
+ 	
 	@Size(min =2 , message="Name should be atleast 2 chars")
 	@JsonProperty("User_name")
 	private String name;
@@ -57,9 +64,18 @@ public class Users {
 		this.birthday = birthday;
 	}
 
+	public List<Post> getPosts() {
+		return posts;
+	}
+
+	public void setPosts(List<Post> posts) {
+		this.posts = posts;
+	}
+
 	@Override
 	public String toString() {
 		return "Users [id=" + id + ", name=" + name + ", birthday=" + birthday + "]";
 	}
+	
 	
 }

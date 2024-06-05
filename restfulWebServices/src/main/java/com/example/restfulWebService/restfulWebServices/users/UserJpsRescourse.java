@@ -2,8 +2,8 @@ package com.example.restfulWebService.restfulWebServices.users;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,20 +13,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.example.restfulWebService.restfulWebServices.UserRepository;
+import com.example.restfulWebService.restfulWebServices.jpa.PostRepositotry;
+import com.example.restfulWebService.restfulWebServices.jpa.UserRepository;
 
 import jakarta.validation.Valid;
 
 @RestController
 public class UserJpsRescourse {
 	
-	@Autowired
-	private UserDaoService service;
+//	@Autowired
+//	private UserDaoService service;
 	
 	private UserRepository repository;
+	
+	private PostRepositotry postRepositotry;
 
-	public UserJpsRescourse(UserDaoService service,UserRepository repository) {
-		this.service = service;
+	public UserJpsRescourse(UserRepository repository,PostRepositotry postRepositotry) {
+		this.postRepositotry = postRepositotry;
 		this.repository=repository;
 	}
 	
@@ -37,13 +40,13 @@ public class UserJpsRescourse {
 //	
 //	@GetMapping("/jpa/users/{id}")
 //	public EntityModel<Users> retreviaUser(@PathVariable int id){
-//		Users user = service.findOne(id);
-//		if(user == null) 
+//		Optional<Users> user = repository.findById(id);
+//		if(user.isEmpty()) 
 //			throw new UserNotFoundException("The id you looked for" + id);
 //		
-//		EntityModel<Users> entityModel = EntityModel.of(user);
+//		EntityModel<Users> entityModel = EntityModel.of(user.get());
 //		
-//		WebMvcLinkBuilder link = (WebMvcLinkBuilder) WebMvcLinkBuilder.methodOn(this.getClass()).retreviallUsers();
+//		WebMvcLinkBuilder link = linkTo(this.retreviallUsers());
 //		
 //		entityModel.add(link.withRel("all-users"));
 //		
@@ -53,7 +56,7 @@ public class UserJpsRescourse {
 	  
 	@PostMapping("/jpa/cusers")
 	public ResponseEntity<Users> createUser(@Valid @RequestBody Users user) {
-		Users savedUser = service.saveUser(user) ;
+		Users savedUser = repository.save(user) ;
 		URI location = ServletUriComponentsBuilder
 									.fromCurrentRequest()
 									.path("/{id}")
@@ -63,7 +66,32 @@ public class UserJpsRescourse {
 	
 	@DeleteMapping("/jpa/users/{id}")
 	public void deleteUser(@PathVariable int id){
-		service.deleteById(id);
+		repository.deleteById(id);
 	}
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Post> retrivePostsForUsers(@PathVariable int id){
+		
+		Optional<Users> user = repository.findById(id);
+		if(user.isEmpty()) 
+			throw new UserNotFoundException("The id you looked for" + id);
+		return user.get().getPosts();
+	}
+	
+	@PostMapping("/jpa/users/{id}/posts")
+	public ResponseEntity<Object> createPostsForUsers(@PathVariable int id,@Valid @RequestBody Post post){
+		
+		Optional<Users> user = repository.findById(id);
+		if(user.isEmpty()) 
+			throw new UserNotFoundException("The id you looked for" + id);
+		post.setUser(user.get());
+		Post savedPost = postRepositotry.save(post);
+		URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(savedPost.getId()).toUri() ;
+				return ResponseEntity.created(location).build();
+	}
+	
 	
 } 

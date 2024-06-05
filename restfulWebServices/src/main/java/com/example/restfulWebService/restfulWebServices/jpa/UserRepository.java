@@ -1,4 +1,4 @@
-package com.example.restfulWebService.restfulWebServices;
+package com.example.restfulWebService.restfulWebServices.jpa;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
