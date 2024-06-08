@@ -1,0 +1,41 @@
+Error : 
+
+No spring.config.import property has been defined
+ 
+Action:
+
+Add a spring.config.import=configserver: property to your configuration.   
+If configuration is not required add spring.config.import=optional:configserver: instead.
+To disable this check, set spring.cloud.config.enabled=false or 
+spring.cloud.config.import-check.enabled=false.
+
+Answer :
+The Reason
+
+Spring Cloud Config Client has changed and technically bootstrap.properties and bootstrap.yml files are deprecated.
+
+Correct Solution
+
+Move all properties from boostrap.properties to application.properties (it can be .yml as well)
+Remove bootstrap.properties file
+Replace spring.cloud.config.uri=http://localhost:8888 with spring.config.import=configserver:http://localhost:8888
+This is a proper way to tell you Spring Boot app that you want to load properties from the Spring Cloud Config service that is running on localhost:8888.
+
+Legacy Solution
+
+In case you want to use a legacy bootstrap.properties file, you just need to add the following dependency:
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-bootstrap</artifactId>
+</dependency>
+Please note that this is a deprecated mechanism, so if you're creating a new project, go ahead with the correct solution.
+
+Error :
+when ever you see error at annotations that means it is missing its dependency pkg !
+
+(base) harikrishnareddy@HariKrishnasAir JavaProjects % lsof -i :8888
+
+COMMAND  PID             USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+java    2583 harikrishnareddy   79u  IPv6 0x92540e91064e04d1      0t0  TCP *:ddi-tcp-1 (LISTEN)
+(base) harikrishnareddy@HariKrishnasAir JavaProjects % kill -9 2583 
